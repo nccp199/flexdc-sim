@@ -1,0 +1,4 @@
+job_type_id,weights
+GPT2.infer.4,0.25
+Llama.infer.4,0.25
+Bloom.infer.4,0.25

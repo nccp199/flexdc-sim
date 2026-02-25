@@ -1,0 +1,43 @@
+{
+    "gradient_config": {
+        "general_variables": {
+            "initp": 1.0,
+            "initr": 0.6
+        },
+        "run_simulator_variables": {},
+        "calculate_delay_prob_variables": {
+            "fitdown": 0.85,
+            "fitup": 0.95
+        },
+        "calculate_gradient_variables": {
+            "gamma": 0.0,
+            "kwh": 3600000.0,
+            "qos_threshold": 0.1,
+            "eta": 0.5,
+            "tau": 46.0,
+            "ysigma": 0.4,
+            "tst": 60.0,
+            "mst": 1.0,
+            "psi1": 1.0,
+            "psi2": 16.0,
+            "tracking_error_constraint": 0.3,
+            "dedr": 0.0
+        },
+        "gradient_driver_variables": {
+            "beta": 5.0,
+            "rho": 150.0,
+            "w_step_up": 0.0002,
+            "w_step_down": 0.0002,
+            "prup": 1200.0,
+            "prdown": 400.0,
+            "wmin": 0.01,
+            "kappa": 0.01,
+            "phi": 1000000.0,
+            "limit_decrease": 200.0,
+            "num_iterations": 150.0
+        },
+        "dr_program_variables": {
+            "program_type": "RSR"
+        }
+    },
+    "experiment_config": 

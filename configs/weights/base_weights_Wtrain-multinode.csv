@@ -1,0 +1,5 @@
+job_type_id,weights
+Resnet.train.4, 0.25
+GPT2.train.8,0.25
+Llama.train.4,0.25
+Bloom.train.8,0.25

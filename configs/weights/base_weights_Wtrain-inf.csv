@@ -1,0 +1,5 @@
+job_type_id,weights
+Resnet.train.4, 0.25
+Bloom.train.4,0.25
+Resnet.infer.4.4,0.25
+Bloom.infer.4,0.25

@@ -1,0 +1,5 @@
+job_type_id,weights
+Resnet.infer.4, 0.25
+GPT2.infer.4,0.25
+Llama.infer.4,0.25
+Bloom.infer.4,0.25
