@@ -2,13 +2,13 @@
 # as opposed to those required to only build or run the project (which are in setup.cfg)
 tox
 pytest~=7.3.1
-pandas~=1.4.3
-numpy~=1.24.3
+pandas>=2.0
+numpy>=1.26
+scipy>=1.13
 peacsim~=0.0.1
 matplotlib~=3.9.2
 fonttools~=4.55.0
 psutil~=6.1.0
-scipy~=1.13.1
 wandb~=0.19.6
 seaborn~=0.13.2
 tqdm~=4.67.1

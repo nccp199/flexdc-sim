@@ -20,7 +20,7 @@ class RuntimePolicyNew:
         self._server_count = exp_config.server_count
 
         df = pd.read_csv(self._policy_parameters['weights_path'])
-        self.weights = {index: float(row[1]) for index, row in df.iterrows()}
+        self.weights = {index: float(row.iloc[1]) for index, row in df.iterrows()}
         self.weighted_average_power = sum(
             self.weights[job_type] * self._job_config.all_max_job_power[job_type] for job_type in self.weights)
         self._job_type_count = job_config.job_type_count

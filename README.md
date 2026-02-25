@@ -39,31 +39,38 @@ sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt update
 sudo apt install python3.10 python3.10-venv python3.10-dev -y
 ```
-2. Create a virtual environment:
+
+2. Clone the repository:
 ```
-python3.10 -m venv --prompt peacsim venv
+git clone git@github.com:peaclab/flexdc-sim.git
+cd flexdc-sim/
 ```
-3. Activate the virtual environment every time you start a new development session:
+
+3. Create a virtual environment:
+```
+python3 -m venv --prompt peacsim venv
+```
+
+4. Activate the virtual environment every time you start a new development session:
 ```
 source venv/bin/activate
 ```
-4. Upgrade pip:
+
+5. Upgrade pip:
 ```
 pip install --upgrade pip
 ```
-5. Clone the repository:
-```
-git clone git@github.com:peaclab/flexdc-sim.git
-```
+
 6. Use editable mode to avoid modifying PYTHONPATH:
 ```
-cd flexdc-sim/
 pip install -e .
 ```
+
 7. Install the required packages
 ```
 pip install -r requirements.txt
 ```
+
 ### Now that your environment is set up, here is what to know: 
 - **run_simulator.py** sets up and runs a simulation (***src/peacsim/***)
     - **Input:** configuration files are passed as command line arguments.
@@ -78,38 +85,31 @@ pip install -r requirements.txt
 - **run_optimizer.py** repeatedly constructs and runs simulations to optimize hyperparameters. See [Optimization Section](#optimizing-demand-response-parameters).
 
 ### Make sure everything is working by running a short example experiment:
-1. Run a test to make sure everything is working:
+1. Run a simulation to make sure everything is working:
 ```
 cd src/peacsim/
-python run_simulator.py --experiment-config ../../configs/experiment/exp_low_util.ini --cluster-config ../../configs/cluster/cluster.ini --policy-config ../../configs/policy/example_flexDC_simulation.ini --job-config ../../configs/workload/W2-short-qos3445.ini --output-dir W2-simulated_annealing_low_util_availability=True_50server
+python3 run_simulator.py --experiment-config ../../configs/experiment/exp_low_util.ini --cluster-config ../../configs/cluster/cluster.ini --policy-config ../../configs/policy/example_flexDC_simulation.ini --job-config ../../configs/workload/W2-short-qos3445.ini --output-dir W2-simulated_annealing_low_util_availability=True_50server
 ```
-2. Plot your results: Go to jupyter notebook called plot_simulation, and change the path at the top to this, then run the notebook:
+After the simulation, results are saved in a directory under src/peacsim/output/simulation. The specific name of the result directory for a simulation is printed at the end as follows:
+
 ```
-experiment_result_dir = "example_flexDC_simulation" 
+Results saved in: output/simulation/W2-simulated_annealing_low_util_availability=True_50server_20260225114542/
+```
+
+2. Plot your results: Go to jupyter notebook notebooks/plot_simulation, and change the path at the top to the output directory that previous simulation is saved. 
+```
+experiment_result_dir = "W2-simulated_annealing_low_util_availability=True_50server_20260225114542" 
 ```
 You should see this plot:
 <!-- ![](/image/test_output.PNG|width=100) -->
 <img src="/image/test_FlexDC_output.png" width="913" height="400">
 
 # Optimizing Demand Response Parameters
-We use the optimization approach implemented in AQA and extend it to incorporate cost schemes from different DR programs and data center policies. 
-- The gradient descent optimization builds up on iteratively executing and updating the parameters for calculated costs from the results of the simulations. 
+We use a simulated annealing optimization approach implemented that incorporates cost schemes from different DR programs and data center policies. 
+- The optimization builds up on iteratively executing and updating the parameters for calculated costs from the results of the simulations. 
 - Weights & Biases is an optional plug-in to allow users to track and easily compare their optimization experiments for various configurations.
 
-### Gradient Descent Optimization Tool
-**gradient_descent.py** implements the optimization approach from AQA by repeatedly running simulations while optimizing parameters between runs to minimize QoS violations and power target tracking error. The AQA policy uses bidding parameters **P** (average power) and **R** (reserve power) as well as prioritization weights for each job type, so the optimizer calculates these. 
-
-**run_gradient_descent_optimizer.py** sets up and starts a gradient descent optimization by running **gradient_descent.py**.
-- **Inputs** are the [config files for the simulator](#now-that-your-environment-is-set-up-here-is-what-to-know), as well as a **gradient config** at ***configs/gradient_descent/***
-- **Outputs** a CSV file that is automatically plotted by **plot_gradient_descent.py** at the end of the optimization.
-
-#### Example run command for **run_gradient_descent_optimizer.py**:
-```
-python run_gradient_descent_optimizer.py --gradient-config ../../configs/gradient_descent/gradient_descent.ini --experiment-config ../../configs/experiment/exp_low_util.ini --cluster-config ../../configs/cluster/cluster.ini --policy-name AQA --job-config ../../configs/workload/W2-short-qos3445.ini --output-dir example-gradient-descent-optimization
-```
-### Simulated Annealing Optimization Tool
-**simulated_annealing.py**: finds a global optimum rather than a precise local optimum.
 #### Example run command for **simulated_annealing.py**:
 ```
-python simulated_annealing.py --experiment-config ../../configs/experiment/exp_low_util.ini --cluster-config ../../configs/cluster/cluster.ini --job-config ../../configs/workload/W2-short-qos5555.ini --gradient-config ../../configs/optimization/simulated_annealing/SA_low_util_RSR.ini --policy-name AQA --output-dir W2-AI-simulated_annealing_low_util
+python3 simulated_annealing.py --experiment-config ../../configs/experiment/exp_low_util.ini --cluster-config ../../configs/cluster/cluster.ini --job-config ../../configs/workload/W2-short-qos5555.ini --gradient-config ../../configs/optimization/simulated_annealing/SA_low_util_RSR.ini --policy-name AQA --output-dir W2-AI-simulated_annealing_low_util
 ```

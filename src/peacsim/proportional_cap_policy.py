@@ -1,6 +1,6 @@
 from peacsim.power_capper import equal_proportional_power_capping
 from peacsim.runtime_policy_new import RuntimePolicyNew
-from node_table_dao import *
+from peacsim.node_table_dao import *
 
 import numpy as np
 
