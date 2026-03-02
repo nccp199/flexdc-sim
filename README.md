@@ -1,25 +1,30 @@
-# FlexDC
+# FlexDC-Sim
 
 ## Introduction
 
-**FlexDC** is an open-source, data center demand response simulator designed to evaluate power management strategies and demand response (DR) programs on data centers. FlexDC can quickly evaluate the performance, power, and cost implications of participating in various DR programs. 
+**FlexDC-Sim** is an open-source, data center demand response simulator designed to evaluate power management strategies and demand response (DR) programs on data centers. FlexDC-Sim can quickly evaluate the performance, power, and cost implications of participating in various DR programs. 
 
-The simulation flow of FlexDC is shown in the following image.
+The simulation flow of FlexDC-Sim is shown in the following image.
 
 <!-- ![](/image/FlexDCflow.PNG|width=100) -->
 <img src="/image/FlexDCflow.png" width="900" height="273">
 
-### Input
+FlexDC-Sim is licensed under BSD 3-Clause License. Please cite the following research paper if you use FlexDC-Sim:
+
+Fatih Acun, Can Hankendi, Ethan Levine, Hudson Reynolds, Joshua Bardwick, and Ayse K. Coskun. 2026. Investigating Power Consumption Flexibility of AI Data Centers for Demand Response Participation. In The 17th ACM International Conference on Future and Sustainable Energy Systems (E-Energy ’26), June 22–25, 2026, Banff, AB, Canada. ACM, New York, NY, USA, 5 pages. https://doi.org/10.1145/3744255.3798112
+
+
+### Simulator Input
 
 The simulation input consists of multiple configuration files to provide an organized experimentation environment for users. 
 - Experiment config stores experiment-specific information such as the duration of the experiment, the power target for the simulation, and utilization of the cluster. 
 - Policy config includes the power management and bidding policy-related parameters and allows storing parameters of custom user-defined policies by having a key-value structure. 
 - Job config includes application-related metadata such as power performance profiling and QoS constraints.
 
-### Simulation Flow of FlexDC
+### Simulation Flow of FlexDC-Sim
 The simulation flow includes updating the job progress scheduled on each node for a certain timestep, updating the states of nodes upon job completion, and executing the DR participation policy to schedule new jobs to nodes and apply power caps depending on the received power target.
 
-To store the data center state, FlexDC keeps two key data structures throughout the simulation, **node table** and **job table**. 
+To store the data center state, FlexDC-Sim keeps two key data structures throughout the simulation, **node table** and **job table**. 
 - In **node table**, we store each node’s state (e.g., idle or active), power consumption, power cap, and the progress of jobs currently running on the nodes. We use the power consumption data from the node table to feed our power management policies to track power targets during the simulation. 
 - In **job table**, we store the job scheduling and execution information to report performance-related metrics after the simulation completes. We implement the job table and node table using NumPy arrays to allow fast and parallel execution of frequent updates and queries.
 
@@ -90,19 +95,21 @@ pip install -r requirements.txt
 cd src/peacsim/
 python3 run_simulator.py --experiment-config ../../configs/experiment/exp_low_util.ini --cluster-config ../../configs/cluster/cluster.ini --policy-config ../../configs/policy/example_flexDC_simulation.ini --job-config ../../configs/workload/W2-short-qos3445.ini --output-dir W2-simulated_annealing_low_util_availability=True_50server
 ```
-After the simulation, results are saved in a directory under src/peacsim/output/simulation. The specific name of the result directory for a simulation is printed at the end as follows:
+After the simulation, results are saved in a directory under src/peacsim/output/simulation. The specific name of the result directory for a simulation is printed at the end similar to the following:
 
 ```
 Results saved in: output/simulation/W2-simulated_annealing_low_util_availability=True_50server_20260225114542/
 ```
 
-2. Plot your results: Go to jupyter notebook notebooks/plot_simulation, and change the path at the top to the output directory that previous simulation is saved. 
+2. Plot your results: , and change the path at the top to the output directory that previous simulation is saved. 
 ```
-experiment_result_dir = "W2-simulated_annealing_low_util_availability=True_50server_20260225114542" 
+python3 notebooks/plot_simulation.py --simulation-output output/simulation/W2-simulated_annealing_low_util_availability=True_50server_20260225114542
 ```
 You should see this plot:
 <!-- ![](/image/test_output.PNG|width=100) -->
 <img src="/image/test_FlexDC_output.png" width="913" height="400">
+
+You can further explore plotting by investigating the jupyter notebooks in the notebooks folder.
 
 # Optimizing Demand Response Parameters
 We use a simulated annealing optimization approach implemented that incorporates cost schemes from different DR programs and data center policies. 
