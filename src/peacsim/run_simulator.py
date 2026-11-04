@@ -55,6 +55,9 @@ def main():
                         help="Plotting for power tracking and QoS.")
     parser.add_argument('--qos-percentile', default=0.9, type=float,
                         help="qos requirement percentile cut-off for QoS violation.")
+    parser.add_argument('--scheduling-seed', type=int, default=None,
+                        help="Optional runtime seed for replaying an optimizer evaluation; "
+                             "the experiment seed still generates the workload.")
 
     args = parser.parse_args()
 
@@ -104,6 +107,8 @@ def main():
                           output_dir=output_dir)
 
     init_output(output_dir, experiment_config, policy_config)
+    if args.scheduling_seed is not None:
+        simulator._random_seed = args.scheduling_seed
     simulator.run()
 
     print('finished in %d seconds.' % (datetime.datetime.now() - start_time).seconds)
