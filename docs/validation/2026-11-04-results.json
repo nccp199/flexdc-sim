@@ -1,0 +1,506 @@
+{
+  "recorded_date": "2026-11-04",
+  "timezone": "Asia/Shanghai",
+  "upstream_commit": "ea50bd582b5d1b55fcb09ea46899fa9d325cce3b",
+  "scope": "Current simulator and deadline-based simulated annealing; not new-method performance validation",
+  "power_restore": {
+    "platforms": [
+      "macOS",
+      "Windows"
+    ],
+    "tests_each": {
+      "passed": 126,
+      "skipped": 17,
+      "xfail": 2
+    },
+    "repeat_csv_equal": {
+      "50": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "qos_summary.csv": true,
+        "tracking_error_90th.csv": true
+      },
+      "1000": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "qos_summary.csv": true,
+        "tracking_error_90th.csv": true
+      }
+    },
+    "replay_csv_equal": {
+      "before": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "qos_summary.csv": true,
+        "tracking_error_90th.csv": true
+      },
+      "after": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "qos_summary.csv": true,
+        "tracking_error_90th.csv": true
+      }
+    },
+    "cases": {
+      "before_50": {
+        "jobs": 3475,
+        "completed": 3400,
+        "running": 41,
+        "queued": 34,
+        "energy_kWh": 23.880237555555553,
+        "interval_mean_power_W": 23880.23755555555,
+        "completed_qos_p90": {
+          "0": 2.4,
+          "1": 2.989285714285716,
+          "2": 3.166666666666667,
+          "3": 4.613636363636363
+        },
+        "native_tracking_p90": 0.063,
+        "native_RSR_cost": 1.5079987465000009
+      },
+      "before_1000": {
+        "jobs": 69431,
+        "completed": 67205,
+        "running": 785,
+        "queued": 1441,
+        "energy_kWh": 475.07872405555554,
+        "interval_mean_power_W": 475078.72405555553,
+        "completed_qos_p90": {
+          "0": 3.2800000000000002,
+          "1": 2.607142857142857,
+          "2": 2.1666666666666665,
+          "3": 7.681818181818182
+        },
+        "native_tracking_p90": 0.232,
+        "native_RSR_cost": 30.388202628444457
+      },
+      "after_50": {
+        "jobs": 3475,
+        "completed": 3399,
+        "running": 41,
+        "queued": 35,
+        "energy_kWh": 23.90876833333333,
+        "interval_mean_power_W": 23908.76833333333,
+        "completed_qos_p90": {
+          "0": 2.36,
+          "1": 2.9642857142857144,
+          "2": 3.2222222222222223,
+          "3": 4.513636363636364
+        },
+        "native_tracking_p90": 0.062,
+        "native_RSR_cost": 1.506660732500001
+      },
+      "after_1000": {
+        "jobs": 69431,
+        "completed": 67205,
+        "running": 785,
+        "queued": 1441,
+        "energy_kWh": 475.1561325833333,
+        "interval_mean_power_W": 475156.1325833333,
+        "completed_qos_p90": {
+          "0": 3.2800000000000002,
+          "1": 2.607142857142857,
+          "2": 2.1666666666666665,
+          "3": 7.681818181818182
+        },
+        "native_tracking_p90": 0.232,
+        "native_RSR_cost": 30.383597737361125
+      }
+    }
+  },
+  "qos_evaluation": {
+    "platforms": [
+      "macOS"
+    ],
+    "tests": {
+      "passed": 152,
+      "skipped": 17,
+      "xfail": 1
+    },
+    "checks": {
+      "physical_trajectory_50": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "tracking_error_90th.csv": true
+      },
+      "repeat_50": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "qos_summary.csv": true,
+        "tracking_error_90th.csv": true,
+        "qos_task_status.csv": true,
+        "qos_evaluation.json": true,
+        "qos_summary_at_cohort_end.csv": true,
+        "qos_task_status_at_cohort_end.csv": true,
+        "qos_evaluation_at_cohort_end.json": true
+      },
+      "physical_trajectory_1000": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "tracking_error_90th.csv": true
+      },
+      "repeat_1000": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "qos_summary.csv": true,
+        "tracking_error_90th.csv": true,
+        "qos_task_status.csv": true,
+        "qos_evaluation.json": true,
+        "qos_summary_at_cohort_end.csv": true,
+        "qos_task_status_at_cohort_end.csv": true,
+        "qos_evaluation_at_cohort_end.json": true
+      },
+      "best_replay": {
+        "PRtable.csv": true,
+        "QoSDegAvg.csv": true,
+        "cost_power_rsr.csv": true,
+        "job_table.csv": true,
+        "power_trace.csv": true,
+        "qos_summary.csv": true,
+        "tracking_error_90th.csv": true,
+        "qos_task_status.csv": true,
+        "qos_evaluation.json": true,
+        "qos_summary_at_cohort_end.csv": true,
+        "qos_task_status_at_cohort_end.csv": true,
+        "qos_evaluation_at_cohort_end.json": true
+      },
+      "all_sa_objectives_match_report": true,
+      "same_cohort_across_normal_run_and_sa": true,
+      "observation_cost_includes_both_hours": true
+    },
+    "packages": {
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "scipy": "1.15.3",
+      "pytest": "7.3.2",
+      "wandb": "0.19.11",
+      "tqdm": "4.67.3"
+    },
+    "python_version": "3.10.19",
+    "cases": {
+      "after_50": {
+        "cohort": {
+          "cohort_start": 0.0,
+          "cohort_end": 3600.0,
+          "observed_until": 7200,
+          "total": 3365,
+          "on_time": 3357,
+          "late": 8,
+          "pending": 0,
+          "final": true,
+          "cohort_sha256": "0575e6f538e2341b4b08bca59031603202ae49e29f109c4e273013d0ac69f467",
+          "deadline_rule": "arrival_time + (1 + qos_constraint) * min_execution_time",
+          "feasibility_metric": "late / total; pending tasks have bounds but no final score",
+          "legacy_diagnostics": [
+            "qos percentile columns",
+            "mean_exec_slowdown",
+            "QoSDegAvg.csv"
+          ]
+        },
+        "at_cohort_end": {
+          "cohort_start": 0.0,
+          "cohort_end": 3600.0,
+          "observed_until": 3600,
+          "total": 3365,
+          "on_time": 3301,
+          "late": 8,
+          "pending": 56,
+          "final": false,
+          "cohort_sha256": "0575e6f538e2341b4b08bca59031603202ae49e29f109c4e273013d0ac69f467",
+          "deadline_rule": "arrival_time + (1 + qos_constraint) * min_execution_time",
+          "feasibility_metric": "late / total; pending tasks have bounds but no final score",
+          "legacy_diagnostics": [
+            "qos percentile columns",
+            "mean_exec_slowdown",
+            "QoSDegAvg.csv"
+          ]
+        },
+        "by_type": [
+          {
+            "job_type_id": 0,
+            "total": 1057,
+            "on_time": 1049,
+            "late": 8,
+            "pending": 0,
+            "late_rate_lower": 0.0075685903500473,
+            "late_rate_upper": 0.0075685903500473,
+            "late_rate": 0.0075685903500473,
+            "evaluation_status": "final",
+            "qos_threshold": 3.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": false,
+            "qos_90th": 1.64,
+            "mean_exec_slowdown": 0.075534531693472,
+            "percentile_scope": "completed_cohort_tasks_only"
+          },
+          {
+            "job_type_id": 1,
+            "total": 957,
+            "on_time": 957,
+            "late": 0,
+            "pending": 0,
+            "late_rate_lower": 0.0,
+            "late_rate_upper": 0.0,
+            "late_rate": 0.0,
+            "evaluation_status": "final",
+            "qos_threshold": 4.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": false,
+            "qos_90th": 2.5357142857142856,
+            "mean_exec_slowdown": 0.0728093745335124,
+            "percentile_scope": "completed_cohort_tasks_only"
+          },
+          {
+            "job_type_id": 2,
+            "total": 701,
+            "on_time": 701,
+            "late": 0,
+            "pending": 0,
+            "late_rate_lower": 0.0,
+            "late_rate_upper": 0.0,
+            "late_rate": 0.0,
+            "evaluation_status": "final",
+            "qos_threshold": 4.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": false,
+            "qos_90th": 1.6111111111111112,
+            "mean_exec_slowdown": 0.0551592962434617,
+            "percentile_scope": "completed_cohort_tasks_only"
+          },
+          {
+            "job_type_id": 3,
+            "total": 650,
+            "on_time": 650,
+            "late": 0,
+            "pending": 0,
+            "late_rate_lower": 0.0,
+            "late_rate_upper": 0.0,
+            "late_rate": 0.0,
+            "evaluation_status": "final",
+            "qos_threshold": 5.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": false,
+            "qos_90th": 3.275000000000001,
+            "mean_exec_slowdown": 0.0492307692307692,
+            "percentile_scope": "completed_cohort_tasks_only"
+          }
+        ],
+        "energy_kWh": 47.23280252777778,
+        "background_task_count": 3541,
+        "late_but_unfinished": 0
+      },
+      "after_1000": {
+        "cohort": {
+          "cohort_start": 0.0,
+          "cohort_end": 3600.0,
+          "observed_until": 7200,
+          "total": 69226,
+          "on_time": 60619,
+          "late": 8607,
+          "pending": 0,
+          "final": true,
+          "cohort_sha256": "8372e6ac7f71f6b57f83c812c9382e1e5708e159737df78e7f6c961801f47e0d",
+          "deadline_rule": "arrival_time + (1 + qos_constraint) * min_execution_time",
+          "feasibility_metric": "late / total; pending tasks have bounds but no final score",
+          "legacy_diagnostics": [
+            "qos percentile columns",
+            "mean_exec_slowdown",
+            "QoSDegAvg.csv"
+          ]
+        },
+        "at_cohort_end": {
+          "cohort_start": 0.0,
+          "cohort_end": 3600.0,
+          "observed_until": 3600,
+          "total": 69226,
+          "on_time": 59948,
+          "late": 7686,
+          "pending": 1592,
+          "final": false,
+          "cohort_sha256": "8372e6ac7f71f6b57f83c812c9382e1e5708e159737df78e7f6c961801f47e0d",
+          "deadline_rule": "arrival_time + (1 + qos_constraint) * min_execution_time",
+          "feasibility_metric": "late / total; pending tasks have bounds but no final score",
+          "legacy_diagnostics": [
+            "qos percentile columns",
+            "mean_exec_slowdown",
+            "QoSDegAvg.csv"
+          ]
+        },
+        "by_type": [
+          {
+            "job_type_id": 0,
+            "total": 21977,
+            "on_time": 20658,
+            "late": 1319,
+            "pending": 0,
+            "late_rate_lower": 0.0600172908040223,
+            "late_rate_upper": 0.0600172908040223,
+            "late_rate": 0.0600172908040223,
+            "evaluation_status": "final",
+            "qos_threshold": 3.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": false,
+            "qos_90th": 2.84,
+            "mean_exec_slowdown": 0.0679965418391955,
+            "percentile_scope": "completed_cohort_tasks_only"
+          },
+          {
+            "job_type_id": 1,
+            "total": 19363,
+            "on_time": 19363,
+            "late": 0,
+            "pending": 0,
+            "late_rate_lower": 0.0,
+            "late_rate_upper": 0.0,
+            "late_rate": 0.0,
+            "evaluation_status": "final",
+            "qos_threshold": 4.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": false,
+            "qos_90th": 2.3214285714285716,
+            "mean_exec_slowdown": 0.0714285714285714,
+            "percentile_scope": "completed_cohort_tasks_only"
+          },
+          {
+            "job_type_id": 2,
+            "total": 15181,
+            "on_time": 15181,
+            "late": 0,
+            "pending": 0,
+            "late_rate_lower": 0.0,
+            "late_rate_upper": 0.0,
+            "late_rate": 0.0,
+            "evaluation_status": "final",
+            "qos_threshold": 4.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": false,
+            "qos_90th": 2.0,
+            "mean_exec_slowdown": 0.0486262067350269,
+            "percentile_scope": "completed_cohort_tasks_only"
+          },
+          {
+            "job_type_id": 3,
+            "total": 12705,
+            "on_time": 5417,
+            "late": 7288,
+            "pending": 0,
+            "late_rate_lower": 0.5736324281778827,
+            "late_rate_upper": 0.5736324281778827,
+            "late_rate": 0.5736324281778827,
+            "evaluation_status": "final",
+            "qos_threshold": 5.0,
+            "cohort_start": 0.0,
+            "cohort_end": 3600.0,
+            "observed_until": 7200,
+            "allowed_late_rate": 0.0999999999999999,
+            "qos_violation": true,
+            "qos_90th": 8.545454545454545,
+            "mean_exec_slowdown": 0.0454545454545454,
+            "percentile_scope": "completed_cohort_tasks_only"
+          }
+        ],
+        "energy_kWh": 947.2031823611111,
+        "background_task_count": 68527,
+        "late_but_unfinished": 0
+      }
+    },
+    "timing": {
+      "before_50": {
+        "seconds": 0.9814440000336617,
+        "peak_root_RSS_MiB": 90.40625,
+        "exit_code": 0
+      },
+      "after_50": {
+        "seconds": 1.0426590421702713,
+        "peak_root_RSS_MiB": 114.140625,
+        "exit_code": 0
+      },
+      "after_50_repeat": {
+        "seconds": 1.0411986669059843,
+        "peak_root_RSS_MiB": 106.28125,
+        "exit_code": 0
+      },
+      "before_1000": {
+        "seconds": 6.716806208947673,
+        "peak_root_RSS_MiB": 495.78125,
+        "exit_code": 0
+      },
+      "after_1000": {
+        "seconds": 7.110462625045329,
+        "peak_root_RSS_MiB": 500.984375,
+        "exit_code": 0
+      },
+      "after_1000_repeat": {
+        "seconds": 7.110882916953415,
+        "peak_root_RSS_MiB": 499.953125,
+        "exit_code": 0
+      },
+      "after_sa5": {
+        "seconds": 5.884442666079849,
+        "peak_root_RSS_MiB": 315.859375,
+        "exit_code": 0
+      },
+      "after_best_replay": {
+        "seconds": 1.0983704579994082,
+        "peak_root_RSS_MiB": 114.375,
+        "exit_code": 0
+      },
+      "pytest": {
+        "seconds": 1.1446913750842214,
+        "peak_root_RSS_MiB": 157.953125,
+        "exit_code": 0
+      }
+    }
+  },
+  "deferred": [
+    "multi-node asynchronous completion",
+    "tracking-error time alignment",
+    "legacy gradient optimizers",
+    "HGTA + HAPPO and independent compute partitions"
+  ]
+}

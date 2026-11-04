@@ -1,50 +1,25 @@
 import numpy as np
 import pandas as pd
 
-def calculate_delay_prob(sim_hour, J, job_table, QoS_constraint, min_execution_time):
-    delay_prob = []
+from peacsim.qos_evaluation import evaluate_qos, final_late_rates
 
-    for ijob in range(J):
-        first_hour = 1 if sim_hour > 2 else 0  # Skip hour 0: queues are initially empty. perf is biased positively
-        # there. Including hour 0 is better than running a single hour, so only do that if there are 3+ hours.
-        last_hour = (
-                sim_hour - 1) if sim_hour > 2 else sim_hour  # ignore the final hour if there are enough hours to
-        # trim. The last hour has draining jobs which biases our perf positively.
-        this_job_finished = job_table[(job_table['job_type_id'] == ijob)
-                                      & (job_table['end_time'] != -1)
-                                      & (job_table['arrival_time'] > first_hour * 3600)]
-        delay = list(this_job_finished['end_time'] - this_job_finished['arrival_time'])  # Sojourn time
-        job_should_finish = job_table[(job_table['job_type_id'] == ijob)
-                                      & (job_table['arrival_time'] + min_execution_time[ijob] < sim_hour * 3600)
-                                      & (job_table['end_time'] == -1)
-                                      & (job_table['arrival_time'] > first_hour * 3600)
-                                      & (job_table['arrival_time'] <= last_hour * 3600)]
-        if len(job_should_finish) > 0:
-            delay = delay + [sim_hour * 3600 - x for x in
-                             list(job_should_finish['arrival_time'])]  # Use true sim_hour here
-            # since we're estimating with start time as "now" at the end of the sim.
-        delay = [x - min_execution_time[ijob] for x in delay]  # minus min execution time.
-        sort_scaled = np.sort(delay)
-        prob = np.linspace(0, 1, len(sort_scaled))  # the CDF.
-        # alphas = []
-        delay_prob_added = False
-        for idx, iprob in enumerate(prob):
-            if sort_scaled[idx] > 1 * QoS_constraint[ijob] * min_execution_time[ijob] and not delay_prob_added:
-                delay_prob.append(1 - iprob)
-                delay_prob_added = True
-            if idx == len(prob) - 1 and not delay_prob_added:
-                delay_prob.append(0)
-                delay_prob_added = True
-        if not delay_prob_added:  # no job for this type.
-            delay_prob.append(0)
-    return delay_prob
+
+def calculate_delay_prob(sim_hour, J, job_table, QoS_constraint, min_execution_time,
+                         *, cohort_start=0, cohort_end=None):
+    """Exact late/total ratios; pending or absent samples have no scalar score."""
+    _, summary = evaluate_qos(job_table, J, QoS_constraint, min_execution_time,
+                              sim_hour * 3600, cohort_start, cohort_end)
+    return final_late_rates(summary)
 
 
 def calculate_qos_cost(experiment_config, job_config, policy_config, simulator,
                        fit, fitdown, fitup, sim_hour, J, job_table,
                        QoS_constraint, min_execution_time, cost_function_config, get_each_term=False):
 
-    delay_prob = calculate_delay_prob(sim_hour, J, job_table, QoS_constraint, min_execution_time)
+    delay_prob = calculate_delay_prob(
+        sim_hour, J, job_table, QoS_constraint, min_execution_time,
+        cohort_start=getattr(simulator, '_qos_cohort_start', 0),
+        cohort_end=getattr(simulator, '_qos_cohort_end', sim_hour * 3600))
 
     beta = cost_function_config.gradient_driver_variables['beta']
     rho = cost_function_config.gradient_driver_variables['rho']
@@ -62,9 +37,10 @@ def calculate_qos_cost(experiment_config, job_config, policy_config, simulator,
 
 
 def calculate_qos_cost_sa(sim_hour, J, job_table,
-                       QoS_constraint, min_execution_time, cost_function_config, get_each_term=False):
+                       QoS_constraint, min_execution_time, cost_function_config, get_each_term=False, *, cohort_start=0, cohort_end=None):
 
-    delay_prob = calculate_delay_prob(sim_hour, J, job_table, QoS_constraint, min_execution_time)
+    delay_prob = calculate_delay_prob(sim_hour, J, job_table, QoS_constraint, min_execution_time,
+                                      cohort_start=cohort_start, cohort_end=cohort_end)
 
     beta = cost_function_config.beta
     rho = cost_function_config.rho

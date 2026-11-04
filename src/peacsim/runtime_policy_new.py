@@ -45,10 +45,14 @@ class RuntimePolicyNew:
         
 
     def apply_power_cap(self, p_target):
+        active_indices = get_active_servers(self._node_table)
+        # Commands are cleared each step. Explicitly release any previous cap,
+        # including for jobs just scheduled, before applying a new reduction.
+        self._node_table[control_power, active_indices] = self._node_table[max_job_power, active_indices]
+        self._node_table[estimate_power, active_indices] = self._node_table[max_job_power, active_indices]
         delta_power = p_target - np.sum(self._node_table[estimate_power])
 
         if delta_power < 0:
-            active_indices = get_active_servers(self._node_table)
             max_reducible_power = np.sum(
                 self._node_table[max_job_power, active_indices] 
                 - self._node_table[min_job_power, active_indices]

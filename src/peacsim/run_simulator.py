@@ -11,6 +11,7 @@ from peacsim.proportional_cap_policy import ProportionalCapPolicy
 from peacsim.priority_cap_policy import PriorityCapPolicy
 from peacsim.denormalize_PR import denormalize_p_and_r_to_watts
 from peacsim.create_tables import init_job_table, init_node_table
+from peacsim.qos_evaluation import prepare_qos_evaluation
 import random
 import numpy as np
 import argparse
@@ -55,6 +56,9 @@ def main():
                         help="Plotting for power tracking and QoS.")
     parser.add_argument('--qos-percentile', default=0.9, type=float,
                         help="qos requirement percentile cut-off for QoS violation.")
+    parser.add_argument('--scheduling-seed', type=int, default=None,
+                        help="Optional runtime seed for replaying an optimizer evaluation; "
+                             "the experiment seed still generates the workload.")
 
     args = parser.parse_args()
 
@@ -62,6 +66,7 @@ def main():
     policy_config = policy_parser.PolicyConfigReader(args.policy_config)  # '../../configs/policy/AQA-W10.ini'
     experiment_config = experiment_parser.ExperimentConfigReader(args.experiment_config)  # '../../configs/experiment/exp.ini'
     job_config = job_parser.JobProfileReader(args.job_config)  # '../../configs/workload/W10.ini'
+    prepare_qos_evaluation(experiment_config, job_config)
 
     # Set random seed
     np.random.seed(experiment_config.random_seed)
@@ -104,6 +109,8 @@ def main():
                           output_dir=output_dir)
 
     init_output(output_dir, experiment_config, policy_config)
+    if args.scheduling_seed is not None:
+        simulator._random_seed = args.scheduling_seed
     simulator.run()
 
     print('finished in %d seconds.' % (datetime.datetime.now() - start_time).seconds)

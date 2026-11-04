@@ -6,12 +6,14 @@ import datetime
 import json
 from distutils.util import strtobool
 from peacsim.simulator import Simulator
+from peacsim.qos_evaluation import prepare_qos_evaluation
 from peacsim.run_simulator import init_job_table, init_node_table
 from peacsim.parsing import experiment_config_reader as experiment_parser
 from peacsim.parsing import cluster_profile_reader as cluster_parser
 from peacsim.parsing import policy_config_reader as policy_parser
 from peacsim.parsing import job_profile_reader as job_parser
-from peacsim.AQA_runtime_policy import AQARuntimePolicy
+from peacsim.aqa_runtimepolicy import AQARuntimePolicy
+from peacsim.AQA_runtime_policy import AQARuntimePolicy as LegacyRuntimePolicy
 from peacsim.parsing import simulated_annealing_reader as sa_config_parser
 from calculate_qos_cost import calculate_qos_cost_sa, calculate_qos_cost_availability
 from calculate_monetary_cost import calculate_monetary_cost
@@ -42,9 +44,9 @@ def create_simulator_object(P_ratio, R_ratio, experiment_config, job_config, clu
         'AQA': (
             AQARuntimePolicy, (policy_config, experiment_config, job_config, node_table, job_table)),
         'flex-resource': (
-            AQARuntimePolicy, (policy_config, experiment_config, job_config, node_table, job_table)),
-        'priority-cap': (AQARuntimePolicy, (policy_config, experiment_config, job_config, node_table, job_table)),
-        'proportional-cap': (AQARuntimePolicy, (policy_config, experiment_config, job_config, node_table, job_table))
+            LegacyRuntimePolicy, (policy_config, experiment_config, job_config, node_table, job_table)),
+        'priority-cap': (LegacyRuntimePolicy, (policy_config, experiment_config, job_config, node_table, job_table)),
+        'proportional-cap': (LegacyRuntimePolicy, (policy_config, experiment_config, job_config, node_table, job_table))
         }
 
     policy_class, constructor_args = policy_mapping[policy_config.runtime_policy_name]
@@ -131,7 +133,9 @@ def sa_evaluate(params, simulated_annealing_config, policy_config, experiment_co
                                                          QoS_constraint=qos_constraints,
                                                          min_execution_time=min_execution_times,
                                                          cost_function_config=simulated_annealing_config,
-                                                         get_each_term=True)
+                                                         get_each_term=True,
+                                                         cohort_start=experiment_config.qos_cohort_start,
+                                                         cohort_end=experiment_config.qos_cohort_end)
 
     objective_value = cost_power + cost_tracking + cost_qos
     total_cost = objective_value
@@ -241,7 +245,8 @@ def simulated_annealing_optimize(simulated_annealing_config, policy_config, expe
     penalty_current = 0  # 10 * current_qos_violation_ratio + 10 * max(current_tracking_violation - 0.3, 0)
     current_total_cost = current_cost + penalty_current
 
-    best = current.copy()
+    # Keep the return shape consistent even when no candidate improves on initialization.
+    best = (current.copy(), -1)
     best_total_cost = current_total_cost
 
     temperature = simulated_annealing_config.temperature
@@ -363,7 +368,7 @@ if __name__ == "__main__":
     if args.power_cap_percentage is not None:
         policy_parameters['power_cap_percentage'] = args.power_cap_percentage
     if args.node_state_control is not None:
-        policy_parameters['node_state_control'] = args.node_state_control
+        policy_parameters['node_count_control'] = args.node_state_control
 
     policy_config = policy_parser.PolicyConfigReader.from_parameters(
         policy_name=args.policy_name,
@@ -384,6 +389,7 @@ if __name__ == "__main__":
     print("Output Directory: ", output_dir)
     print("Saving optimization configurations in", output_dir + "configurations.json")
 
+    prepare_qos_evaluation(experiment_config, job_config)
     configurations = {
         "gradient_config": simulated_annealing_config.to_dict(),
         "experiment_config": experiment_config.to_dict(),
@@ -395,8 +401,9 @@ if __name__ == "__main__":
     with open(output_dir + "configurations.json", "w") as file:
         json.dump(configurations, file, indent=4)
 
-    np.random.seed(experiment_config.random_seed)
-    random.seed(experiment_config.random_seed)
+    workload_seed = experiment_config.random_seed
+    np.random.seed(workload_seed)
+    random.seed(workload_seed)
 
     wandb_configs = {**simulated_annealing_config.to_dict(),
                      **experiment_config.to_dict(),
@@ -422,6 +429,17 @@ if __name__ == "__main__":
 
     print("Optimal Parameters (via SA):", best_params, "found at iteration:", iteration_index)
 
+    # Evaluations use a fixed workload but seed scheduling by evaluation number.
+    # Preserve both seeds: the final evaluation's seed cannot regenerate the workload.
+    best_evaluation = iteration_index + 1
+    with open(os.path.join(output_dir, 'best_result.json'), 'w') as file:
+        json.dump({'parameters': list(best_params), 'iteration_index': iteration_index,
+                   'evaluation_index': best_evaluation, 'workload_seed': workload_seed,
+                   'scheduling_seed': best_evaluation,
+                   'runtime_policy': 'peacsim.aqa_runtimepolicy.AQARuntimePolicy'
+                       if args.policy_name == 'AQA' else 'peacsim.AQA_runtime_policy.AQARuntimePolicy'},
+                  file, indent=4)
+
     p_normalized, r_normalized = best_params[0], best_params[1]
 
     opt_weights = pd.DataFrame({
@@ -445,4 +463,5 @@ if __name__ == "__main__":
     print("Saving optimal_policy.ini in the output directory:", output_dir)
     optimal_policy_config.write_policy_ini(policy_name=args.policy_name, policy_parameters=policy_parameters,
                                            file_path=output_dir + "/optimal_policy.ini")
+    experiment_config._random_seed = workload_seed
     experiment_config.write_experiment_config(output_dir + "experiment_config.ini")
