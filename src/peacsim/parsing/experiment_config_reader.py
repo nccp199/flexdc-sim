@@ -10,6 +10,9 @@ class ExperimentConfigReader:
         self._time_granularity = self.experiment_config.getint('system', 'time_granularity', fallback=1)
         self._random_seed = self.experiment_config.getint('system', 'random_seed')
         self._simulation_duration = self.experiment_config.getint('system', 'simulation_duration')
+        self._qos_cohort_start = self.experiment_config.getfloat('qos_evaluation', 'cohort_start', fallback=0.0)
+        self._qos_cohort_end = self.experiment_config.getfloat(
+            'qos_evaluation', 'cohort_end', fallback=float(self._simulation_duration))
         self._utilization = self.experiment_config.getfloat('system', 'utilization')
         self._normalize_iso_signal = self.experiment_config.getboolean('iso', 'normalize_iso_signal')
         self._randomize_iso_start = self.experiment_config.getboolean('iso', 'randomize_iso_start')
@@ -40,6 +43,14 @@ class ExperimentConfigReader:
     @property
     def simulation_duration(self):
         return self._simulation_duration
+
+    @property
+    def qos_cohort_start(self):
+        return self._qos_cohort_start
+
+    @property
+    def qos_cohort_end(self):
+        return self._qos_cohort_end
 
     @property
     def utilization(self):
@@ -91,6 +102,8 @@ class ExperimentConfigReader:
             "time_granularity": self._time_granularity,
             "random_seed": self._random_seed,
             "simulation_duration": self._simulation_duration,
+            "qos_cohort_start": self._qos_cohort_start,
+            "qos_cohort_end": self._qos_cohort_end,
             "utilization": self._utilization,
             "normalize_iso_signal": self._normalize_iso_signal,
             "iso_signal_granularity": self._iso_signal_granularity,
@@ -126,5 +139,10 @@ class ExperimentConfigReader:
             "iso_signal_start_hour": str(self._iso_signal_start_hour)
         }
 
-        with open(file_path, "w") as configfile:
+        config["qos_evaluation"] = {
+            "cohort_start": str(self._qos_cohort_start),
+            "cohort_end": str(self._qos_cohort_end),
+        }
+
+        with open(file_path, "w", encoding="utf-8") as configfile:
             config.write(configfile)

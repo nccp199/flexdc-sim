@@ -6,6 +6,7 @@ import datetime
 import json
 from distutils.util import strtobool
 from peacsim.simulator import Simulator
+from peacsim.qos_evaluation import prepare_qos_evaluation
 from peacsim.run_simulator import init_job_table, init_node_table
 from peacsim.parsing import experiment_config_reader as experiment_parser
 from peacsim.parsing import cluster_profile_reader as cluster_parser
@@ -132,7 +133,9 @@ def sa_evaluate(params, simulated_annealing_config, policy_config, experiment_co
                                                          QoS_constraint=qos_constraints,
                                                          min_execution_time=min_execution_times,
                                                          cost_function_config=simulated_annealing_config,
-                                                         get_each_term=True)
+                                                         get_each_term=True,
+                                                         cohort_start=experiment_config.qos_cohort_start,
+                                                         cohort_end=experiment_config.qos_cohort_end)
 
     objective_value = cost_power + cost_tracking + cost_qos
     total_cost = objective_value
@@ -386,6 +389,7 @@ if __name__ == "__main__":
     print("Output Directory: ", output_dir)
     print("Saving optimization configurations in", output_dir + "configurations.json")
 
+    prepare_qos_evaluation(experiment_config, job_config)
     configurations = {
         "gradient_config": simulated_annealing_config.to_dict(),
         "experiment_config": experiment_config.to_dict(),

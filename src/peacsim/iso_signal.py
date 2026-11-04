@@ -26,6 +26,8 @@ def read_iso_signal(experiment_config, simulation_duration, iso_signal_granulari
         start_offset_hour = experiment_config.iso_signal_start_hour if experiment_config.iso_signal_start_hour else 0
         start_index = int(start_offset_hour * (hour_seconds/iso_signal_granularity))
         iso_signal = iso_signal[start_index:start_index+num_samples_required]
+    if len(iso_signal) < num_samples_required:
+        raise ValueError('ISO signal is shorter than the requested observation window; provide a longer trace')
     return iso_signal
 
 

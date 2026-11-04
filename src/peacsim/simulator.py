@@ -57,6 +57,10 @@ class Simulator:
         self._time_granularity = experiment_config.time_granularity
         self._random_seed = experiment_config.random_seed
         self._simulation_duration = experiment_config.simulation_duration
+        self._qos_cohort_start = getattr(experiment_config, 'qos_cohort_start', 0)
+        self._qos_cohort_end = getattr(experiment_config, 'qos_cohort_end', self._simulation_duration)
+        self._qos_boundary_snapshot = None
+        self.qos_summary = None
         self._utilization = experiment_config.utilization
         self._normalize_iso_signal = experiment_config.normalize_iso_signal
         self._iso_signal_granularity = experiment_config.iso_signal_granularity
@@ -217,7 +221,7 @@ class Simulator:
         random.seed(self._random_seed)
 
         with open(self._output_dir + 'power_trace.csv', 'a') as outputStream:
-            for cycle in tqdm(range(0, self._simulation_duration + 1), desc="Simulation Progress"):
+            for cycle in tqdm(range(0, self._simulation_duration // self._time_granularity + 1), desc="Simulation Progress"):
                 current_time = cycle * self._time_granularity
                 p_target = self._cluster_power_cap_per_signal[current_time // self._iso_signal_granularity]
                 if current_time > 0:
@@ -226,6 +230,8 @@ class Simulator:
                 self.update_realtime_qos(current_time)
                 self.calc_qos_emergency(current_time)
                 self._runtime_policy.execute(current_time, p_target)
+                if self._qos_boundary_snapshot is None and current_time >= self._qos_cohort_end:
+                    self._qos_boundary_snapshot = (current_time, self._job_table.copy())
                 # self.probabilistic_results.append(self._runtime_policy.probabilistic_results)
                 self.calc_tracking_num(p_target)
                 self.real_power = np.sum(self._node_table[server_power])
@@ -243,6 +249,12 @@ class Simulator:
         self._job_table['job_id'] = self._job_table['job_id'].astype(int)
         self._job_table['job_type_id'] = self._job_table['job_type_id'].astype(int)
         self.tracking_error_at_90 = self.error_violate()
+        if self._qos_boundary_snapshot is not None:
+            observed, table = self._qos_boundary_snapshot
+            snapshot = pd.DataFrame(table.T, columns=self._job_table.columns)
+            snapshot['job_id'] = snapshot['job_id'].astype(int)
+            snapshot['job_type_id'] = snapshot['job_type_id'].astype(int)
+            write_qos_summary_df(self, snapshot, observed, suffix='_at_cohort_end')
         self.constraint_violations, self.ratio_of_job_type_qos_violation = write_qos_summary_df(self)
         power_cost, tracking_cost = self.final_output()
         return power_cost, tracking_cost
@@ -260,50 +272,13 @@ class Simulator:
         return error_at_90
 
     def qos_violate(self, time_length):
-        """
-        Checking whether QoS is violated.
-        Modified to include un-started and unfinished jobs.
-        """
-        violate_qos = []
-        qos_constraints = self._job_config.all_job_qos_constraints
-
-        started_jobs = self._job_table[
-            (self._job_table['end_time'] > self._idle_status) & (self._job_table['arrival_time'] < time_length)]
-        if started_jobs.empty:
-            print('No started jobs')
-            return
-        qos = started_jobs.groupby('job_type_id').apply(
-            lambda x: (x['end_time'] - x['arrival_time'] - x['min_execution_time']) / x['min_execution_time'])
-        str_qos_viol_percentile_cutoff = str(self.qos_violation_percentile_cutoff * 100)
-        print('QoS deg at '+ str_qos_viol_percentile_cutoff +' by job type')
-        qos_deg_at_percentile = qos.groupby('job_type_id').quantile(self.qos_violation_percentile_cutoff)
-
-        constraint_violations = (qos_deg_at_percentile > pd.Series(list(qos_constraints.values())))
-        job_type_qos_violation_count = constraint_violations.sum()
-        job_type_qos_violation_ratio = job_type_qos_violation_count / self._job_type_count
-        print(qos_deg_at_percentile.to_string())
-        # print(f'==> num violations>5: {(q90deg > 5).sum()}')
-        print('Mean exec slowdown by job type')
-        mean_exec_slowdown = started_jobs.groupby('job_type_id').apply(
-            lambda x: ((x['end_time'] - x['start_time'] - x['min_execution_time']) / x['min_execution_time']).mean())
-        print(mean_exec_slowdown)
-        qos_df = pd.DataFrame({
-            'job_type_id': qos_deg_at_percentile.index,
-            'qos_' + str_qos_viol_percentile_cutoff + 'th': qos_deg_at_percentile.values,
-            'mean_exec_slowdown': mean_exec_slowdown.values,
-            'qos_threshold': [qos_constraints[job_type] for job_type in qos_deg_at_percentile.index]
-        })
-        qos_df.to_csv(self._output_dir + 'qos_summary.csv', index=False, header=True)
-
-        print(f'Count of job types with QoS violations from {self._job_type_count} job types: 'f'{job_type_qos_violation_count}')
-        print(f'Ratio of job types with QoS violation: {job_type_qos_violation_ratio}')
-
-        print('Violations:', ', '.join(['' for idx, violation in enumerate(violate_qos) if violation]))
-        queued_jobs = self._job_table.loc[(self._job_table['arrival_time'] <= self._simulation_duration)]
-        print(f'Ratio of all jobs violating QoS, queued in the first hour (from {len(queued_jobs)} jobs):',
-              round((queued_jobs['realtime_qos'].values > queued_jobs['qos_constraint'].values).mean(), 7))
-
-        return constraint_violations, job_type_qos_violation_ratio
+        """Use the same cohort and deadline rule as the final report and objective."""
+        from peacsim.qos_evaluation import evaluate_qos, constraint_results
+        _, summary = evaluate_qos(
+            self._job_table, self._job_type_count,
+            self._job_config.all_job_qos_constraints, self._job_config.all_min_execution_time,
+            time_length, self._qos_cohort_start, self._qos_cohort_end)
+        return constraint_results(summary, 1 - self.qos_violation_percentile_cutoff)
 
     def final_output(self):
         hour = 3600

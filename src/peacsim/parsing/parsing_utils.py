@@ -6,7 +6,7 @@ def init_config_parser(source):
     try:
         config.read_file(source)
     except:
-        with open(source, 'r') as file:
+        with open(source, 'r', encoding='utf-8-sig') as file:
             config.read_file(file)
 
     return config
