@@ -39,6 +39,11 @@ class AQARuntimePolicy(RuntimePolicy):
         self._node_table[estimate_power, np.where(self._node_table[server_state] != self.idle_status)[0]] = \
             [self._node_table[max_job_power, np.where(self._node_table[server_state] != self.idle_status)[0]]]
         self.assign_idle_servers(current_time, p_target)
+        active_indices = np.where(self._node_table[server_state] != self.idle_status)[0]
+        # Restore through the normal command path; the simulator applies it
+        # after accounting for progress at the previous step's actual power.
+        self._node_table[control_power, active_indices] = self._node_table[max_job_power, active_indices]
+        self._node_table[estimate_power, active_indices] = self._node_table[max_job_power, active_indices]
         delta_power = p_target - np.sum(self._node_table[estimate_power])
         if delta_power < 0:
             # self.applied_power_cap[current_time] = abs(delta_power)
