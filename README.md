@@ -1,5 +1,17 @@
 # FlexDC-Sim
 
+## 本 fork 的修复基线（2026-11-04）
+
+本分支已完成限功率解除后的恢复指令修复，以及按“按时完成／超时／待定”统计的固定任务批次评价。
+普通模拟与基于任务期限的退火优化使用同一统计口径，并保留了可重复回放最优方案的复现修复。
+
+- [修改范围、验收结果与后续开发约定](docs/validation/2026-11-04-baseline.md)
+- [机器可读验收摘要](docs/validation/2026-11-04-results.json)
+- [完整对照验证脚本](scripts/validation/run_qos_validation.py)
+
+该记录覆盖基础修复；HGTA＋HAPPO 尚未接入。多节点异步完成机制和跟踪误差公式保持原样。
+原项目介绍、作者署名和引用信息保留如下。
+
 ## Introduction
 
 **FlexDC-Sim** is an open-source, data center demand response simulator designed to evaluate power management strategies and demand response (DR) programs on data centers. FlexDC-Sim can quickly evaluate the performance, power, and cost implications of participating in various DR programs. 
