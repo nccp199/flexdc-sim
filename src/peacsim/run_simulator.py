@@ -1,4 +1,5 @@
 import datetime
+from peacsim import simulation_output
 
 from peacsim.parsing import experiment_config_reader as experiment_parser
 from peacsim.parsing import cluster_profile_reader as cluster_parser
@@ -12,27 +13,15 @@ from peacsim.priority_cap_policy import PriorityCapPolicy
 from peacsim.denormalize_PR import denormalize_p_and_r_to_watts
 from peacsim.create_tables import init_job_table, init_node_table
 from peacsim.qos_evaluation import prepare_qos_evaluation
+from peacsim.metrics.energy_cost import ElectricityTariff
 import random
 import numpy as np
 import argparse
 
 
 def init_output(output_dir, experiment_config, policy_config):
-    with open(output_dir + '/power_trace.csv', 'w') as f:
-        f.write(
-            'time,QoSemergency,numNeededForTracking,waitingSum,target,realSum,trackingError,QoSJobSum,standbyPower')
-        for i in range(experiment_config.server_count):
-            f.write(',client%d' % (i + 1))
-        f.write(',estimateSum')
-        for i in range(experiment_config.server_count):
-            f.write(',state%d' % (i + 1))
-        f.write('\n')
-    with open(output_dir + '/PRtable.csv', 'w') as f:
-        f.write('phase,P,R\n')
-        f.write('%d,%d,%d\n' % (0, policy_config.P, policy_config.R))
-    with open(output_dir + 'job_table.csv', 'w') as f:
-        f.write('job_id,job_type_id,arrival_time,start_time,end_time,estimate_finished,update_time,realtime_qos,'
-                'min_execution_time,qos_constraint,job_size\n')
+    """Compatibility entry point for the shared CSV initialization."""
+    return simulation_output.init_output(output_dir, experiment_config, policy_config)
 
 
 def main():
@@ -59,8 +48,23 @@ def main():
     parser.add_argument('--scheduling-seed', type=int, default=None,
                         help="Optional runtime seed for replaying an optimizer evaluation; "
                              "the experiment seed still generates the workload.")
+    parser.add_argument('--it-price-per-kwh', type=float, default=None,
+                        help='Optional fixed price for the IT-only electricity estimate.')
+    parser.add_argument('--it-price-currency', default=None,
+                        help='Currency label for --it-price-per-kwh, e.g. CNY or USD.')
+    parser.add_argument('--it-price-source', default=None,
+                        help='Source or explicit assumption behind the supplied IT electricity price.')
 
     args = parser.parse_args()
+    it_tariff = None
+    price_fields = (args.it_price_per_kwh, args.it_price_currency, args.it_price_source)
+    if any(value is not None for value in price_fields):
+        if any(value is None for value in price_fields):
+            parser.error('Supply --it-price-per-kwh, --it-price-currency and --it-price-source together.')
+        try:
+            it_tariff = ElectricityTariff(*price_fields)
+        except ValueError as exc:
+            parser.error(str(exc))
 
     cluster_config = cluster_parser.ClusterProfileReader(args.cluster_config)  # '../../configs/cluster/cluster.ini'
     policy_config = policy_parser.PolicyConfigReader(args.policy_config)  # '../../configs/policy/AQA-W10.ini'
@@ -106,12 +110,17 @@ def main():
                           job_config,
                           cluster_config,
                           qos_violation_percentile_cut_off=args.qos_percentile,
-                          output_dir=output_dir)
+                          output_dir=output_dir, it_tariff=it_tariff)
 
     init_output(output_dir, experiment_config, policy_config)
     if args.scheduling_seed is not None:
         simulator._random_seed = args.scheduling_seed
     simulator.run()
+    energy_cost = simulator.get_energy_cost_report()
+    estimate = energy_cost['it_electricity_cost_estimate']
+    print('Observed IT energy: %.6f kWh; electricity estimate: %s' % (
+        energy_cost['it_energy_kwh'], 'price not configured' if estimate['amount'] is None else
+        '%g %s (%s)' % (estimate['amount'], estimate['currency'], estimate['status'])))
 
     print('finished in %d seconds.' % (datetime.datetime.now() - start_time).seconds)
 

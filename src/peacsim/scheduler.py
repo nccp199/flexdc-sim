@@ -6,7 +6,7 @@ import math
 
 def assign_idle_servers(node_table, job_table, current_time, 
                         total_num_of_active_servers, idle_server_ids, job_queue,
-                        server_count, job_config, job_type_count, weights):
+                        server_count, job_config, job_type_count, weights, *, priority_jobs=()):
     """
     Assigns idle servers in node_table to jobs waiting in their queues. The order in which we assign jobs from
     a given queue is FIFO (first in first out). The order in which we pick queues to run is randomized to avoid bias
@@ -24,6 +24,11 @@ def assign_idle_servers(node_table, job_table, current_time,
 
     job_order = list(range(job_type_count))
     random.shuffle(job_order)
+    # Preserve native FIFO and node accounting. A promoted class uses the
+    # available activation quota ahead of the weighted allocation.
+    priority_types = set(job_queue[1, np.isin(job_queue[0], tuple(priority_jobs))]) if priority_jobs else set()
+    if priority_types:
+        job_order.sort(key=lambda j: j not in priority_types)
 
     index = 0
     for job_type in job_order:
@@ -35,8 +40,10 @@ def assign_idle_servers(node_table, job_table, current_time,
         num_to_be_activated = round((server_count_change_per_job_type[job_type]) / job_size) * job_size
         num_to_be_scheduled = max(0, num_to_be_activated)
 
-        num_servers_scheduled = min(len(job_type_queue) * job_size, num_servers_activated,
-                                    num_to_be_scheduled)
+        quota = num_servers_activated if job_type in priority_types else num_to_be_scheduled
+        num_servers_scheduled = min(len(job_type_queue) * job_size, num_servers_activated, quota)
+        if priority_types:
+            num_servers_scheduled -= num_servers_scheduled % job_size
         if num_servers_scheduled <= 0:
             continue
         num_servers_used = min(num_servers_scheduled, len(idle_server_ids) - index)
@@ -62,8 +69,9 @@ def assign_idle_servers(node_table, job_table, current_time,
         node_table[just_started, server_indices] = 1
         node_table[server_power, server_indices] = max_power
 
-        index += num_servers_scheduled
-        num_servers_activated -= num_servers_scheduled
+        # Whole-group rounding can leave capacity available for later queues.
+        index += num_servers_used
+        num_servers_activated -= num_servers_used
 
 def adjust_weights(current_time, job_table, weights, job_queue):
     """

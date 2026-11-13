@@ -556,7 +556,7 @@ class GradientDescentOptimizer:
         w = list(simulator._runtime_policy.weights.values())
         N = simulator._server_count
         J = self.job_config.job_type_count
-        job_table = simulator._job_table
+        job_table = simulator.get_job_report()
         sim_hour = simulator._simulation_duration // 3600
         if iteration == 0:
             P_on_avg = sum(max_job_power) / float(len(max_job_power))

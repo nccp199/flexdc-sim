@@ -1,0 +1,10 @@
+{
+  "status": "development",
+  "description": "One synthetic day with 24 constant hourly fractions. Zero is synthetic midnight; 06:00-18:00 is the assumed daylight window. No site, date or measured-weather claim.",
+  "profile": {
+    "start_seconds": 0,
+    "interval_seconds": 3600,
+    "fractions": [0, 0, 0, 0, 0, 0, 0.1, 0.25, 0.5, 0.65, 0.8, 0.9, 1, 0.9, 0.8, 0.65, 0.5, 0.25, 0, 0, 0, 0, 0, 0],
+    "source": "synthetic development example; piecewise-constant hourly facility-side output fractions, not measured data"
+  }
+}

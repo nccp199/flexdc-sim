@@ -1,0 +1,14 @@
+{
+  "schema_version": "flexdc-environment-config-v1",
+  "description": "Shared physical development settings; no agents or algorithms. Grid contract is a synthetic research assumption, not the old IT contract.",
+  "native_experiment": "../../scripts/validation/configs/exp50.ini",
+  "control_interval_seconds": 4,
+  "battery_config": "../energy/battery_50_nodes.json",
+  "pv_config": "../energy/pv_50_nodes.json",
+  "cooling_config": "../energy/cooling.json",
+  "grid_contract": {
+    "base_kw": 20,
+    "reserve_kw": 5,
+    "source": "Synthetic S4a development grid contract: 20 +/- 5 kW per 50 nodes; check feasibility in S4c/d before formal experiments."
+  }
+}

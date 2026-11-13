@@ -1,0 +1,19 @@
+cli_auth_credentials_store = "file"
+forced_login_method = "chatgpt"
+approval_policy = "never"
+sandbox_mode = "read-only"
+web_search = "disabled"
+
+[features]
+apps = false
+plugins = false
+hooks = false
+memories = false
+shell_tool = false
+unified_exec = false
+view_image = false
+browser_use = false
+computer_use = false
+code_mode_host = false
+multi_agent_v2 = false
+image_generation = false

@@ -21,6 +21,8 @@ def test_all_servers_finished():
     """
     simulator = (simulator, job_table, node_table, policy_config, experiment_config, job_config,
      cluster_config) = construct_simulator()
+    # Only active nodes can finish jobs; the shared fixture starts idle.
+    simulator._node_table[server_state, :] = simulator._job_table[job_type_id, :]
     # Mark all servers as finished by setting job_progress to 1.
     simulator._node_table[job_progress, :] = 1
 
@@ -42,6 +44,7 @@ def test_some_servers_not_finished():
     """
     (simulator, job_table, node_table, policy_config, experiment_config, job_config,
      cluster_config) = construct_simulator()
+    simulator._node_table[server_state, 0] = 0
     # Mark only the first server as finished.
     simulator._node_table[job_progress, 0] = 1
     # Ensure its job id is 0.

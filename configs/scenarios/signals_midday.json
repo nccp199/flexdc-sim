@@ -1,0 +1,22 @@
+{
+  "price_per_kwh": {
+    "start_seconds": 0,
+    "interval_seconds": 3600,
+    "values": [
+      0.5,
+      1.0
+    ],
+    "unit": "CNY/kWh",
+    "source": "Synthetic two-hour development price; not an actual tariff."
+  },
+  "carbon_kg_per_kwh": {
+    "start_seconds": 0,
+    "interval_seconds": 3600,
+    "values": [
+      0.4,
+      0.6
+    ],
+    "unit": "kgCO2/kWh",
+    "source": "Synthetic average grid carbon intensity; not measured or marginal emissions."
+  }
+}

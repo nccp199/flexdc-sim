@@ -103,7 +103,7 @@ def test_report_and_objective_use_identical_counts_and_original_softplus(tmp_pat
     sim=NS(_job_table=jobs,_simulation_duration=60,_qos_cohort_start=0,_qos_cohort_end=25,
            _job_type_count=1,_job_config=NS(all_job_qos_constraints={0:1.},all_min_execution_time={0:10.}),
            _output_dir=str(tmp_path),qos_violation_percentile_cutoff=.9)
-    flags,ratio=write_qos_summary_df(sim)
+    flags,ratio=write_qos_summary_df(sim, jobs)
     assert flags.iloc[0] and ratio==1
     report=pd.read_csv(tmp_path/'qos_summary.csv')
     assert report.total.tolist()==[2]
@@ -122,7 +122,7 @@ def test_pending_report_has_bounds_but_cannot_enter_objective(tmp_path):
     sim=NS(_job_table=jobs,_simulation_duration=25,_qos_cohort_start=0,_qos_cohort_end=25,
            _job_type_count=1,_job_config=NS(all_job_qos_constraints={0:1.},all_min_execution_time={0:10.}),
            _output_dir=str(tmp_path),qos_violation_percentile_cutoff=.9)
-    flags,ratio=write_qos_summary_df(sim)
+    flags,ratio=write_qos_summary_df(sim, jobs)
     assert pd.isna(flags.iloc[0]) and np.isnan(ratio)
     assert sim.qos_summary.late_rate_lower.tolist()==[0.]
     assert sim.qos_summary.late_rate_upper.tolist()==[.5]
@@ -191,7 +191,7 @@ def test_native_run_retains_background_arrivals_and_resolves_the_cohort(tmp_path
     assert sim.qos_summary.total.tolist()==[2]
     assert sim.qos_summary.pending.tolist()==[0]
     assert sim.qos_summary.on_time.tolist()==[2]
-    assert sim._job_table.loc[2,'start_time']>=10
+    assert sim.get_job_report().loc[2,'start_time']>=10
     initial=pd.read_csv(tmp_path/'qos_summary_at_cohort_end.csv')
     assert initial.pending.tolist()==[1]
     a=json.loads((tmp_path/'qos_evaluation_at_cohort_end.json').read_text())

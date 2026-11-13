@@ -1,0 +1,7 @@
+{
+  "status": "development",
+  "description": "Synthetic facility-side PV starting point for the current 50-node scenario; calibrate after S4 integration.",
+  "pv": {
+    "peak_power_kw": 25.0
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "status": "development",
+  "description": "Synthetic research assumption: facility cooling electricity is 0.25 times modeled IT electricity, with constant efficiency and sufficient cooling capacity. Shared by 50-node and 1000-node development scenarios; calibrate in S4 before formal comparisons. Not a measured value or an A08 parameter.",
+  "cooling": {
+    "power_ratio": 0.25
+  }
+}

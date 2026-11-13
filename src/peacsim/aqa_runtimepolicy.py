@@ -9,8 +9,8 @@ from peacsim.job_table_dao import *
 from peacsim.power_capper import equal_proportional_power_capping
 
 class AQARuntimePolicy(RuntimePolicyNew):
-    def __init__(self, policy_config, exp_config, job_config, node_table, job_table):
-        super().__init__(policy_config, exp_config, job_config, node_table, job_table)
+    def __init__(self, policy_config, exp_config, job_config, node_table, job_table, *, weights=None):
+        super().__init__(policy_config, exp_config, job_config, node_table, job_table, weights=weights)
 
 
     def adjust_server_power(self, delta_power, max_reducible_power, active_indices):

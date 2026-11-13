@@ -1,4 +1,5 @@
 import argparse
+from peacsim import simulation_output
 import numpy as np
 import pandas as pd
 import os
@@ -62,20 +63,8 @@ def create_simulator_object(P_ratio, R_ratio, experiment_config, job_config, clu
 # Helper: Initialize output files
 # -------------------------------
 def init_output(output_dir, experiment_config, policy_config):
-    with open(os.path.join(output_dir, 'power_trace.csv'), 'w') as f:
-        f.write('time,QoSemergency,numNeededForTracking,waitingSum,target,realSum,trackingError,QoSJobSum,standbyPower')
-        for i in range(experiment_config.server_count):
-            f.write(',client%d' % (i + 1))
-        f.write(',estimateSum')
-        for i in range(experiment_config.server_count):
-            f.write(',state%d' % (i + 1))
-        f.write('\n')
-    with open(os.path.join(output_dir, 'PRtable.csv'), 'w') as f:
-        f.write('phase,P,R\n')
-        f.write('%d,%d,%d\n' % (0, policy_config.P, policy_config.R))
-    with open(os.path.join(output_dir, 'job_table.csv'), 'w') as f:
-        f.write('job_id,job_type_id,arrival_time,start_time,end_time,estimate_finished,update_time,realtime_qos,'
-                'min_execution_time,qos_constraint,job_size\n')
+    """Compatibility entry point for the shared CSV initialization."""
+    return simulation_output.init_output(output_dir, experiment_config, policy_config)
 
 
 def sa_evaluate(params, simulated_annealing_config, policy_config, experiment_config,
@@ -129,7 +118,7 @@ def sa_evaluate(params, simulated_annealing_config, policy_config, experiment_co
           policy_config.runtime_policy_name == 'proportional-cap'):
         cost_qos, qos_costs_each = calculate_qos_cost_sa(sim_hour=experiment_config.simulation_duration / 3600,
                                                          J=simulator._job_type_count,
-                                                         job_table=simulator._job_table,
+                                                         job_table=simulator.get_job_report(),
                                                          QoS_constraint=qos_constraints,
                                                          min_execution_time=min_execution_times,
                                                          cost_function_config=simulated_annealing_config,

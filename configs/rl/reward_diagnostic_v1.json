@@ -1,0 +1,18 @@
+{
+  "schema_version": "flexdc-reward-config-v1",
+  "purpose": "diagnostic_only",
+  "final_weights": false,
+  "discount_factor": 1.0,
+  "weights": {
+    "grid_tracking": 1.0,
+    "cohort_qos": 1.0,
+    "background_qos": 1.0,
+    "terminal_energy": 1.0,
+    "grid_cost": 0.0,
+    "grid_carbon": 0.0,
+    "not_due_backlog": 0.0
+  },
+  "reference_price_per_kwh": 1.0,
+  "reference_carbon_kg_per_kwh": 1.0,
+  "notes": "仅用于S5c功能检测。1表示检查相应归一化通道，0表示保留明细但不加入总分；未校准、未选优，不是最终权重，不得作为正式训练或方法比较配置。参考价格使用场景币种，参考碳强度为检测尺度，不是实测数据。"
+}

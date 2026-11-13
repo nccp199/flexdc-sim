@@ -25,7 +25,7 @@ def write_qos_summary_df(simulator, job_table=None, observed_until=None, suffix=
     from peacsim.qos_evaluation import evaluate_qos, constraint_results
 
     if job_table is None:
-        job_table = simulator._job_table
+        job_table = simulator.get_job_report()
     if observed_until is None:
         observed_until = simulator._simulation_duration
     constraints = simulator._job_config.all_job_qos_constraints

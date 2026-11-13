@@ -1,0 +1,18 @@
+{
+  "schema_version": "flexdc-scenario-v1",
+  "scenario_id": "development_dynamic_100s",
+  "source": "Synthetic 100-second experiment on the development_midday native workload and signal horizon.",
+  "environment_config": "environment_50_nodes.json",
+  "window": {"cohort_seconds": [0, 3600], "observation_end_seconds": 7200},
+  "workload": {"mode": "native", "job_profile": "../../scripts/validation/configs/jobs.ini", "seed": 101},
+  "iso": {
+    "path": "../../data/ISO24h.csv",
+    "interval_seconds": 4,
+    "start_hour": 0,
+    "normalize": true,
+    "source": "Existing FlexDC ISO24h.csv, first native two-hour slice including terminal sample; not asserted to share a site/date with PV."
+  },
+  "pv": {"profile": "../energy/pv_synthetic_day.json", "source_offset_seconds": 36000},
+  "external_signals": "signals_midday.json",
+  "dynamic_events": "events_dynamic_100s.json"
+}

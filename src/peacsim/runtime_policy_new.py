@@ -8,7 +8,7 @@ from peacsim import scheduler
 
 
 class RuntimePolicyNew:
-    def __init__(self, policy_config, exp_config, job_config, node_table, job_table):
+    def __init__(self, policy_config, exp_config, job_config, node_table, job_table, *, weights=None):
         self._runtime_policy_name = policy_config.runtime_policy_name
         self._P = policy_config.P
         self._R = policy_config.R
@@ -19,13 +19,17 @@ class RuntimePolicyNew:
         self._job_config = job_config
         self._server_count = exp_config.server_count
 
-        df = pd.read_csv(self._policy_parameters['weights_path'])
-        self.weights = {index: float(row.iloc[1]) for index, row in df.iterrows()}
+        if weights is None:
+            df = pd.read_csv(self._policy_parameters['weights_path'])
+            self.weights = {index: float(row.iloc[1]) for index, row in df.iterrows()}
+        else:
+            self.weights = dict(weights)  # Already loaded scenario inputs; no file read on reset.
         self.weighted_average_power = sum(
             self.weights[job_type] * self._job_config.all_max_job_power[job_type] for job_type in self.weights)
         self._job_type_count = job_config.job_type_count
         print("Policy: ", self._runtime_policy_name)
         self.availability_qos = False
+        self.priority_jobs = frozenset()
 
     @property
     def P(self):
@@ -34,6 +38,25 @@ class RuntimePolicyNew:
     @property
     def R(self):
         return self._R
+
+    def validate_task_weights(self, values):
+        from peacsim.control.allocation import normalize_task_weights
+        return normalize_task_weights(values, self._job_type_count)
+
+    def execute_with_weights(self, current_time, p_target, task_weights):
+        """Temporary allocation for one call; leave the frozen policy/reset intact."""
+        values = self.validate_task_weights(task_weights)
+        old_weights, old_average = self.weights, self.weighted_average_power
+        old_external = getattr(self, '_external_weights_active', False)
+        self.weights = dict(enumerate(values))
+        self.weighted_average_power = sum(
+            self.weights[j] * self._job_config.all_max_job_power[j] for j in self.weights)
+        self._external_weights_active = True
+        try:
+            return self.execute(current_time, p_target)
+        finally:
+            self.weights, self.weighted_average_power = old_weights, old_average
+            self._external_weights_active = old_external
 
     def execute(self, current_time, p_target):
         self._node_table[estimate_power, np.where(self._node_table[server_state] != SERVER_STATUS_IDLE)[0]] = \
@@ -81,7 +104,7 @@ class RuntimePolicyNew:
                                           self._server_count,
                                           self._job_config,
                                           self._job_type_count,
-                                          self.weights)
+                                          self.weights, priority_jobs=self.priority_jobs)
 
 
 
@@ -94,6 +117,10 @@ class RuntimePolicyNew:
         Returns an integer value representing the total number of active servers.
         """
         if self._policy_parameters.get('node_count_control'):
+            # The same degenerate mix can occur at native t=0 or after reset,
+            # before the first external action. Keep the S5b boundary there too.
+            if self.weighted_average_power <= self._idle_power:
+                return self._server_count if p_target >= self._idle_power*self._server_count else 0
             return min(int(
                 math.ceil(
                     (p_target - self._idle_power * self._server_count) / (

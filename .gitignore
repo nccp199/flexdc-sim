@@ -144,3 +144,11 @@ tests/simulator-functions/output/*
 src/peacsim/wandb/*
 wandb/*
 .vscode/launch.json
+
+# Local cloud experiments and isolated Codex profiles
+/cloud-runs/
+/experiments/**/results/
+.codex/
+.codex-home/
+auth.json
+*.jsonl

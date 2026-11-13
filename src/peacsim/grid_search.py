@@ -90,7 +90,7 @@ def objective_function(params, cost_function_config, policy_config, experiment_c
     min_execution_times = list(simulator._job_config.all_min_execution_time.values())
     cost_qos = calculate_qos_cost(experiment_config=experiment_config, job_config=job_config, policy_config=policy_config,
                                   simulator=simulator, fit=True, fitdown=0.85, fitup=0.95, sim_hour=1,
-                                  J=simulator._job_type_count, job_table=simulator._job_table,
+                                  J=simulator._job_type_count, job_table=simulator.get_job_report(),
                                   QoS_constraint=qos_constraints, min_execution_time=min_execution_times,
                                   cost_function_config=cost_function_config
                                   )

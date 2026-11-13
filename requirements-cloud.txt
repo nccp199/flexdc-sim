@@ -1,0 +1,4 @@
+# Runtime used for the FlexDC Harness, with CPython 3.10–3.13.
+numpy==2.2.6
+pandas==2.3.3
+tqdm==4.67.3

@@ -1,0 +1,30 @@
+{
+  "schema_version": "flexdc-scenario-v1",
+  "scenario_id": "development_midday",
+  "source": "Synthetic composite research scenario: native FlexDC workload/ISO combined with an artificial PV day and tariffs; no common geography, date or measured weather claim.",
+  "environment_config": "environment_50_nodes.json",
+  "window": {
+    "cohort_seconds": [
+      0,
+      3600
+    ],
+    "observation_end_seconds": 7200
+  },
+  "workload": {
+    "mode": "native",
+    "job_profile": "../../scripts/validation/configs/jobs.ini",
+    "seed": 20
+  },
+  "iso": {
+    "path": "../../data/ISO24h.csv",
+    "interval_seconds": 4,
+    "start_hour": 0,
+    "normalize": true,
+    "source": "Existing FlexDC ISO24h.csv, first native two-hour slice including terminal sample; not asserted to share a site/date with PV."
+  },
+  "pv": {
+    "profile": "../energy/pv_synthetic_day.json",
+    "source_offset_seconds": 36000
+  },
+  "external_signals": "signals_midday.json"
+}

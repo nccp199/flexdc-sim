@@ -1,0 +1,12 @@
+{
+  "price": [
+    {"start": 25, "end": 55, "multiplier": 2.5},
+    {"start": 55, "end": 100, "multiplier": 0.7}
+  ],
+  "grid_limit": [
+    {"start": 40, "end": 75, "kw": 16.0}
+  ],
+  "task_priority": [
+    {"start": 60, "end": 100, "type_id": 3}
+  ]
+}
